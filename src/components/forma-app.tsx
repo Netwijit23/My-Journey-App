@@ -22,6 +22,7 @@ import {
   ShieldCheck,
   Sparkles,
   Sun,
+  Trash2,
   Utensils,
   Watch,
 } from "lucide-react";
@@ -67,11 +68,11 @@ const sections = [
 ];
 
 const quickActions = [
-  { label: "Log Food", icon: Apple },
-  { label: "Start Workout", icon: Dumbbell },
-  { label: "Log Weight", icon: Scale },
-  { label: "Add Photo", icon: Camera },
-  { label: "Journal", icon: HeartPulse },
+  { label: "Log Food", icon: Apple, action: "food" },
+  { label: "Start Workout", icon: Dumbbell, action: "workout" },
+  { label: "Log Weight", icon: Scale, action: "weight" },
+  { label: "Add Photo", icon: Camera, action: "photo" },
+  { label: "Journal", icon: HeartPulse, action: "journal" },
 ];
 
 const aiPlanExample = `Day 1: Push
@@ -84,8 +85,52 @@ Weighted Pull-up 4x6
 Barbell Row 4x8
 Incline Curl 3x12`;
 
+type LoggedFood = FoodEstimate & {
+  id: string;
+  loggedAt: string;
+};
+
+type WeightEntry = {
+  id: string;
+  value: number;
+  loggedAt: string;
+};
+
+type JournalEntry = {
+  id: string;
+  text: string;
+  loggedAt: string;
+};
+
+type AppData = {
+  foods: LoggedFood[];
+  workoutSessions: number;
+  weights: WeightEntry[];
+  photos: number;
+  journals: JournalEntry[];
+  habits: Record<string, boolean>;
+};
+
+const initialAppData: AppData = {
+  foods: [],
+  workoutSessions: 0,
+  weights: [],
+  photos: 0,
+  journals: [],
+  habits: {
+    Workout: true,
+    "Protein goal": true,
+    "Water goal": true,
+    Steps: true,
+    Stretching: false,
+    Sleep: false,
+  },
+};
+
 export function FormaApp() {
   const { theme, setTheme, activeSection, setActiveSection } = useFormaStore();
+  const [appData, setAppData] = useState<AppData>(initialAppData);
+  const [notice, setNotice] = useState("Ready to log today's work.");
   const [planText, setPlanText] = useState(aiPlanExample);
   const [importedPlan, setImportedPlan] = useState<WorkoutDay[]>(
     parseWorkoutPlan(aiPlanExample),
@@ -102,7 +147,19 @@ export function FormaApp() {
 
   useEffect(() => {
     setChartsReady(true);
+    const saved = window.localStorage.getItem("my-journey-app-data");
+    if (saved) {
+      try {
+        setAppData({ ...initialAppData, ...JSON.parse(saved) });
+      } catch {
+        window.localStorage.removeItem("my-journey-app-data");
+      }
+    }
   }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem("my-journey-app-data", JSON.stringify(appData));
+  }, [appData]);
 
   const totals = useMemo(
     () =>
@@ -118,6 +175,86 @@ export function FormaApp() {
     [foodEstimates],
   );
 
+  function scrollToSection(section: string) {
+    setActiveSection(section);
+    document
+      .getElementById(section.toLowerCase())
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function handleQuickAction(action: string) {
+    if (action === "food") {
+      scrollToSection("Nutrition");
+      setNotice("Type a meal, then tap Estimate meal or + to log foods.");
+      return;
+    }
+
+    if (action === "workout") {
+      setAppData((current) => ({
+        ...current,
+        workoutSessions: current.workoutSessions + 1,
+        habits: { ...current.habits, Workout: true },
+      }));
+      scrollToSection("Workout");
+      setNotice("Workout started. Today's workout habit is marked complete.");
+      return;
+    }
+
+    if (action === "weight") {
+      const value = Number(window.prompt("Enter today's weight", String(today.weight)));
+      if (!Number.isFinite(value) || value <= 0) return;
+      setAppData((current) => ({
+        ...current,
+        weights: [{ id: crypto.randomUUID(), value, loggedAt: new Date().toISOString() }, ...current.weights],
+      }));
+      scrollToSection("Body");
+      setNotice(`Logged weight: ${value} lb.`);
+      return;
+    }
+
+    if (action === "photo") {
+      setAppData((current) => ({ ...current, photos: current.photos + 1 }));
+      scrollToSection("Body");
+      setNotice("Progress photo placeholder added. File uploads can be connected next.");
+      return;
+    }
+
+    if (action === "journal") {
+      const text = window.prompt("Journal note for today");
+      if (!text?.trim()) return;
+      setAppData((current) => ({
+        ...current,
+        journals: [{ id: crypto.randomUUID(), text: text.trim(), loggedAt: new Date().toISOString() }, ...current.journals],
+      }));
+      scrollToSection("Body");
+      setNotice("Journal entry saved on this device.");
+    }
+  }
+
+  function logFood(food: FoodEstimate) {
+    setAppData((current) => ({
+      ...current,
+      foods: [{ ...food, id: crypto.randomUUID(), loggedAt: new Date().toISOString() }, ...current.foods],
+      habits: { ...current.habits, "Protein goal": true },
+    }));
+    setNotice(`${food.name} logged.`);
+  }
+
+  function removeFood(id: string) {
+    setAppData((current) => ({
+      ...current,
+      foods: current.foods.filter((food) => food.id !== id),
+    }));
+    setNotice("Food log removed.");
+  }
+
+  function toggleHabit(habit: string) {
+    setAppData((current) => ({
+      ...current,
+      habits: { ...current.habits, [habit]: !current.habits[habit] },
+    }));
+  }
+
   return (
     <main className="min-h-screen px-3 py-3 text-[var(--foreground)] sm:px-5 lg:px-6">
       <div className="mx-auto grid max-w-[1480px] gap-4 lg:grid-cols-[252px_minmax(0,1fr)]">
@@ -127,7 +264,7 @@ export function FormaApp() {
             {sections.map((section) => (
               <button
                 key={section.label}
-                onClick={() => setActiveSection(section.label)}
+                onClick={() => scrollToSection(section.label)}
                 className={cn(
                   "flex h-11 w-full items-center gap-3 rounded-2xl px-3 text-sm font-medium text-[var(--muted)] transition",
                   activeSection === section.label &&
@@ -163,7 +300,13 @@ export function FormaApp() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button className="hidden h-10 items-center gap-2 rounded-full border border-[var(--hairline)] px-4 text-sm text-[var(--muted)] sm:flex">
+              <button
+                onClick={() => {
+                  scrollToSection("Nutrition");
+                  setNotice("Search is not connected to USDA yet. Use the meal parser for today's testing.");
+                }}
+                className="hidden h-10 items-center gap-2 rounded-full border border-[var(--hairline)] px-4 text-sm text-[var(--muted)] sm:flex"
+              >
                 <Search size={16} />
                 Search foods, lifts, notes
               </button>
@@ -177,29 +320,45 @@ export function FormaApp() {
             </div>
           </header>
 
-          <MobileNav activeSection={activeSection} onChange={setActiveSection} />
+          <MobileNav activeSection={activeSection} onChange={scrollToSection} />
 
-          <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="mt-3 rounded-[20px] border border-[var(--hairline)] bg-[var(--card-strong)] px-4 py-3 text-sm text-[var(--muted)]">
+            {notice}
+          </div>
+
+          <div id="dashboard" className="mt-4 grid scroll-mt-24 gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
             <div className="space-y-4">
-              <HeroOverview chartsReady={chartsReady} />
-              <TodayGrid />
+              <HeroOverview chartsReady={chartsReady} onQuickAction={handleQuickAction} />
+              <TodayGrid appData={appData} />
               <RecoveryDashboard chartsReady={chartsReady} />
               <WorkoutSection
                 planText={planText}
                 setPlanText={setPlanText}
                 importedPlan={importedPlan}
-                onImport={() => setImportedPlan(parseWorkoutPlan(planText))}
+                sessions={appData.workoutSessions}
+                onStartWorkout={() => handleQuickAction("workout")}
+                onImport={() => {
+                  setImportedPlan(parseWorkoutPlan(planText));
+                  setNotice("Workout plan parsed. Review the detected days below.");
+                }}
               />
               <NutritionSection
                 mealText={mealText}
                 setMealText={setMealText}
                 estimates={foodEstimates}
                 totals={totals}
-                onEstimate={() => setFoodEstimates(estimateFoods(mealText))}
+                loggedFoods={appData.foods}
+                onLogFood={logFood}
+                onRemoveFood={removeFood}
+                onEstimate={() => {
+                  const next = estimateFoods(mealText);
+                  setFoodEstimates(next);
+                  setNotice(next.length ? "Meal estimated. Tap + to log items." : "No known foods found. Try eggs, chicken breast, rice, oats, or banana.");
+                }}
               />
               <AnalyticsSection chartsReady={chartsReady} />
             </div>
-            <RightRail />
+            <RightRail appData={appData} onToggleHabit={toggleHabit} />
           </div>
         </section>
       </div>
@@ -249,7 +408,13 @@ function MobileNav({
   );
 }
 
-function HeroOverview({ chartsReady }: { chartsReady: boolean }) {
+function HeroOverview({
+  chartsReady,
+  onQuickAction,
+}: {
+  chartsReady: boolean;
+  onQuickAction: (action: string) => void;
+}) {
   return (
     <section className="glass overflow-hidden rounded-[30px] p-5 sm:p-6">
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
@@ -276,6 +441,7 @@ function HeroOverview({ chartsReady }: { chartsReady: boolean }) {
             {quickActions.map((action) => (
               <button
                 key={action.label}
+                onClick={() => onQuickAction(action.action)}
                 className="flex h-11 items-center justify-center gap-2 rounded-full bg-black px-4 text-sm font-medium text-white transition hover:opacity-85 dark:bg-white dark:text-black"
               >
                 <action.icon size={16} />
@@ -313,16 +479,21 @@ function HeroOverview({ chartsReady }: { chartsReady: boolean }) {
   );
 }
 
-function TodayGrid() {
+function TodayGrid({ appData }: { appData: AppData }) {
+  const latestWeight = appData.weights[0]?.value ?? today.weight;
+  const todaysLoggedCalories = appData.foods.reduce((sum, food) => sum + food.calories, 0);
+  const todaysLoggedProtein = appData.foods.reduce((sum, food) => sum + food.protein, 0);
+  const completedHabits = Object.values(appData.habits).filter(Boolean).length;
+  const totalHabits = Object.values(appData.habits).length;
   const cards = [
-    { label: "Current weight", value: `${today.weight} lb`, detail: `${progress.weightChange} lb this week`, icon: Scale },
-    { label: "Daily calories", value: today.calories, detail: `${percent(today.calories, today.calorieGoal)}% of target`, icon: Utensils },
-    { label: "Protein", value: `${today.protein} g`, detail: `${today.proteinGoal - today.protein} g remaining`, icon: Apple },
+    { label: "Current weight", value: `${latestWeight} lb`, detail: appData.weights[0] ? "Logged today on this device" : `${progress.weightChange} lb this week`, icon: Scale },
+    { label: "Daily calories", value: Math.round(todaysLoggedCalories || today.calories), detail: `${percent(todaysLoggedCalories || today.calories, today.calorieGoal)}% of target`, icon: Utensils },
+    { label: "Protein", value: `${Math.round(todaysLoggedProtein || today.protein)} g`, detail: `${Math.max(0, Math.round(today.proteinGoal - (todaysLoggedProtein || today.protein)))} g remaining`, icon: Apple },
     { label: "Water", value: `${today.water} L`, detail: `${percent(today.water, today.waterGoal)}% complete`, icon: GlassWater },
     { label: "Steps", value: formatNumber(today.steps), detail: `${percent(today.steps, today.stepsGoal)}% complete`, icon: Watch },
     { label: "Sleep", value: `${today.sleep} h`, detail: "Good recovery window", icon: Moon },
-    { label: "Workout", value: "Planned", detail: today.workoutStatus, icon: Dumbbell },
-    { label: "Habits", value: `${today.habitsDone}/${today.habitsTotal}`, detail: "2 left today", icon: CheckCircle2 },
+    { label: "Workout", value: appData.workoutSessions ? "Started" : "Planned", detail: appData.workoutSessions ? `${appData.workoutSessions} session logged` : today.workoutStatus, icon: Dumbbell },
+    { label: "Habits", value: `${completedHabits}/${totalHabits}`, detail: `${Math.max(0, totalHabits - completedHabits)} left today`, icon: CheckCircle2 },
     { label: "Recovery", value: `${recoveryToday.score}/100`, detail: recoveryToday.suggestedIntensity, icon: HeartPulse },
     { label: "Body Battery", value: todaysGarminMetrics.bodyBattery, detail: `${todaysGarminMetrics.recoveryTimeHours}h recovery time`, icon: Battery },
   ];
@@ -354,7 +525,7 @@ function RecoveryDashboard({ chartsReady }: { chartsReady: boolean }) {
   }
 
   return (
-    <section className="panel rounded-[30px] p-5">
+    <section id="recovery" className="panel scroll-mt-24 rounded-[30px] p-5">
       <div className="grid gap-5 2xl:grid-cols-[360px_1fr]">
         <div className="rounded-[26px] bg-black p-5 text-white dark:bg-white dark:text-black">
           <div className="flex items-center justify-between">
@@ -465,17 +636,24 @@ function WorkoutSection({
   planText,
   setPlanText,
   importedPlan,
+  sessions,
+  onStartWorkout,
   onImport,
 }: {
   planText: string;
   setPlanText: (value: string) => void;
   importedPlan: WorkoutDay[];
+  sessions: number;
+  onStartWorkout: () => void;
   onImport: () => void;
 }) {
   return (
-    <section className="grid gap-4 2xl:grid-cols-[1fr_420px]">
+    <section id="workout" className="grid scroll-mt-24 gap-4 2xl:grid-cols-[1fr_420px]">
       <div className="panel rounded-[28px] p-5">
-        <SectionTitle icon={Dumbbell} title="Workout tracker" action="Start session" />
+        <SectionTitle icon={Dumbbell} title="Workout tracker" action="Start session" onAction={onStartWorkout} />
+        <p className="mt-4 rounded-2xl bg-black/[0.04] p-3 text-sm text-[var(--muted)] dark:bg-white/[0.06]">
+          {sessions ? `${sessions} workout session${sessions === 1 ? "" : "s"} started on this device.` : "Start a session to mark today's workout complete."}
+        </p>
         <div className="mt-5 grid gap-3">
           {workoutPlan.map((day) => (
             <div key={day.name} className="rounded-[22px] border border-[var(--hairline)] p-4">
@@ -527,16 +705,32 @@ function NutritionSection({
   setMealText,
   estimates,
   totals,
+  loggedFoods,
+  onLogFood,
+  onRemoveFood,
   onEstimate,
 }: {
   mealText: string;
   setMealText: (value: string) => void;
   estimates: FoodEstimate[];
   totals: { calories: number; protein: number; carbs: number; fat: number };
+  loggedFoods: LoggedFood[];
+  onLogFood: (food: FoodEstimate) => void;
+  onRemoveFood: (id: string) => void;
   onEstimate: () => void;
 }) {
+  const loggedTotals = loggedFoods.reduce(
+    (acc, food) => ({
+      calories: acc.calories + food.calories,
+      protein: acc.protein + food.protein,
+      carbs: acc.carbs + food.carbs,
+      fat: acc.fat + food.fat,
+    }),
+    { calories: 0, protein: 0, carbs: 0, fat: 0 },
+  );
+
   return (
-    <section className="panel rounded-[28px] p-5">
+    <section id="nutrition" className="panel scroll-mt-24 rounded-[28px] p-5">
       <SectionTitle icon={Utensils} title="Nutrition tracker" action="Estimate meal" onAction={onEstimate} />
       <div className="mt-5 grid gap-4 xl:grid-cols-[360px_1fr]">
         <div>
@@ -546,10 +740,10 @@ function NutritionSection({
             className="min-h-36 w-full resize-none rounded-[20px] border border-[var(--hairline)] bg-transparent p-4 text-sm outline-none"
           />
           <div className="mt-3 grid grid-cols-2 gap-2">
-            <Macro label="Calories" value={Math.round(totals.calories)} unit="kcal" />
-            <Macro label="Protein" value={Math.round(totals.protein)} unit="g" />
-            <Macro label="Carbs" value={Math.round(totals.carbs)} unit="g" />
-            <Macro label="Fat" value={Math.round(totals.fat)} unit="g" />
+            <Macro label="Estimated calories" value={Math.round(totals.calories)} unit="kcal" />
+            <Macro label="Estimated protein" value={Math.round(totals.protein)} unit="g" />
+            <Macro label="Logged calories" value={Math.round(loggedTotals.calories)} unit="kcal" />
+            <Macro label="Logged protein" value={Math.round(loggedTotals.protein)} unit="g" />
           </div>
         </div>
         <div className="space-y-3">
@@ -562,7 +756,11 @@ function NutritionSection({
                     {food.source} · confidence {Math.round(food.confidence * 100)}%
                   </p>
                 </div>
-                <button className="grid h-9 w-9 place-items-center rounded-full bg-black text-white dark:bg-white dark:text-black">
+                <button
+                  onClick={() => onLogFood(food)}
+                  className="grid h-9 w-9 place-items-center rounded-full bg-black text-white dark:bg-white dark:text-black"
+                  aria-label={`Log ${food.name}`}
+                >
                   <Plus size={16} />
                 </button>
               </div>
@@ -574,6 +772,24 @@ function NutritionSection({
               </div>
             </div>
           ))}
+          {loggedFoods.length > 0 && (
+            <div className="rounded-[22px] bg-black/[0.04] p-4 dark:bg-white/[0.06]">
+              <p className="font-semibold">Today&apos;s logged foods</p>
+              <div className="mt-3 space-y-2">
+                {loggedFoods.map((food) => (
+                  <div key={food.id} className="flex items-center justify-between gap-3 text-sm">
+                    <span>{food.name}</span>
+                    <div className="flex items-center gap-3 text-[var(--muted)]">
+                      <span>{food.calories} kcal</span>
+                      <button onClick={() => onRemoveFood(food.id)} aria-label={`Remove ${food.name}`}>
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </section>
@@ -582,7 +798,7 @@ function NutritionSection({
 
 function AnalyticsSection({ chartsReady }: { chartsReady: boolean }) {
   return (
-    <section className="grid gap-4 xl:grid-cols-2">
+    <section id="analytics" className="grid scroll-mt-24 gap-4 xl:grid-cols-2">
       <ChartCard title="Weight trend" chartsReady={chartsReady}>
         <LineChart data={metricSeries}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(120,120,120,.18)" />
@@ -605,26 +821,44 @@ function AnalyticsSection({ chartsReady }: { chartsReady: boolean }) {
   );
 }
 
-function RightRail() {
+function RightRail({
+  appData,
+  onToggleHabit,
+}: {
+  appData: AppData;
+  onToggleHabit: (habit: string) => void;
+}) {
+  const latestWeight = appData.weights[0]?.value ?? today.weight;
+
   return (
     <aside className="space-y-4">
-      <div className="panel rounded-[28px] p-5">
+      <div id="body" className="panel scroll-mt-24 rounded-[28px] p-5">
         <SectionTitle icon={HeartPulse} title="Body and recovery" />
         <div className="mt-5 grid grid-cols-2 gap-3">
-          <Macro label="Waist" value={31.8} unit="in" />
+          <Macro label="Weight" value={latestWeight} unit="lb" />
           <Macro label="Body fat" value={14.2} unit="%" />
           <Macro label="Sleep avg" value={7.3} unit="h" />
-          <Macro label="Mood" value={8} unit="/10" />
+          <Macro label="Photos" value={appData.photos} unit="" />
         </div>
+        {appData.journals.length > 0 && (
+          <div className="mt-4 rounded-2xl bg-black/[0.04] p-3 dark:bg-white/[0.06]">
+            <p className="text-sm font-semibold">Latest journal</p>
+            <p className="mt-1 text-sm text-[var(--muted)]">{appData.journals[0].text}</p>
+          </div>
+        )}
       </div>
-      <div className="panel rounded-[28px] p-5">
+      <div id="habits" className="panel scroll-mt-24 rounded-[28px] p-5">
         <SectionTitle icon={CheckCircle2} title="Habits" />
         <div className="mt-5 space-y-3">
-          {["Workout", "Protein goal", "Water goal", "Steps", "Stretching", "Sleep"].map((habit, index) => (
-            <div key={habit} className="flex items-center justify-between rounded-2xl bg-black/[0.04] p-3 dark:bg-white/[0.06]">
+          {Object.entries(appData.habits).map(([habit, done]) => (
+            <button
+              key={habit}
+              onClick={() => onToggleHabit(habit)}
+              className="flex w-full items-center justify-between rounded-2xl bg-black/[0.04] p-3 text-left dark:bg-white/[0.06]"
+            >
               <span className="text-sm">{habit}</span>
-              <CheckCircle2 size={18} className={index < 4 ? "text-emerald-500" : "text-[var(--muted)]"} />
-            </div>
+              <CheckCircle2 size={18} className={done ? "text-emerald-500" : "text-[var(--muted)]"} />
+            </button>
           ))}
         </div>
       </div>
