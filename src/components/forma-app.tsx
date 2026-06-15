@@ -25,6 +25,7 @@ import {
   Sun,
   Trash2,
   Utensils,
+  UserRound,
   Watch,
 } from "lucide-react";
 import {
@@ -49,7 +50,6 @@ import {
   recoveryToday,
   recoveryTrend,
   metricSeries,
-  progress,
   today,
   todaysGarminMetrics,
   workoutPlan,
@@ -61,6 +61,7 @@ import { cn, formatNumber, percent } from "@/lib/utils";
 
 const sections = [
   { label: "Dashboard", icon: Home },
+  { label: "Profile", icon: UserRound },
   { label: "Challenge", icon: Flame },
   { label: "Recovery", icon: HeartPulse },
   { label: "Workout", icon: Dumbbell },
@@ -105,7 +106,51 @@ type JournalEntry = {
   loggedAt: string;
 };
 
+type PersonalProfile = {
+  name: string;
+  age: string;
+  sex: "male" | "female";
+  heightCm: string;
+  weightKg: string;
+  waistCm: string;
+  bodyFatPercent: string;
+  goal: "fat_loss" | "recomposition" | "maintenance" | "muscle_gain";
+  activityLevel: "sedentary" | "light" | "moderate" | "very_active" | "athlete";
+  proteinPerKg: string;
+  waterLiters: string;
+  stepsGoal: string;
+  sleepGoal: string;
+  garminHrv: string;
+  garminHrvBaseline: string;
+  garminRestingHeartRate: string;
+  garminRestingHeartRateBaseline: string;
+  garminSleepHours: string;
+  garminSleepScore: string;
+  garminStressScore: string;
+  garminBodyBattery: string;
+  garminTrainingReadiness: string;
+  garminRecoveryHours: string;
+  garminVo2Max: string;
+  garminIntensityMinutes: string;
+};
+
+type ProfileSummary = {
+  isComplete: boolean;
+  bmr: number;
+  tdee: number;
+  calories: number;
+  protein: number;
+  fat: number;
+  carbs: number;
+  water: number;
+  steps: number;
+  sleep: number;
+  bmi: number;
+  goalLabel: string;
+};
+
 type AppData = {
+  profile: PersonalProfile;
   foods: LoggedFood[];
   workoutSessions: number;
   weights: WeightEntry[];
@@ -114,7 +159,36 @@ type AppData = {
   habits: Record<string, boolean>;
 };
 
+const initialProfile: PersonalProfile = {
+  name: "",
+  age: "",
+  sex: "male",
+  heightCm: "",
+  weightKg: "",
+  waistCm: "",
+  bodyFatPercent: "",
+  goal: "fat_loss",
+  activityLevel: "moderate",
+  proteinPerKg: "2.2",
+  waterLiters: "3",
+  stepsGoal: "10000",
+  sleepGoal: "7.5",
+  garminHrv: "",
+  garminHrvBaseline: "",
+  garminRestingHeartRate: "",
+  garminRestingHeartRateBaseline: "",
+  garminSleepHours: "",
+  garminSleepScore: "",
+  garminStressScore: "",
+  garminBodyBattery: "",
+  garminTrainingReadiness: "",
+  garminRecoveryHours: "",
+  garminVo2Max: "",
+  garminIntensityMinutes: "",
+};
+
 const initialAppData: AppData = {
+  profile: initialProfile,
   foods: [],
   workoutSessions: 0,
   weights: [],
@@ -130,6 +204,90 @@ const initialAppData: AppData = {
   },
 };
 
+const activityMultipliers = {
+  sedentary: 1.2,
+  light: 1.375,
+  moderate: 1.55,
+  very_active: 1.725,
+  athlete: 1.9,
+};
+
+const goalAdjustments = {
+  fat_loss: -500,
+  recomposition: -200,
+  maintenance: 0,
+  muscle_gain: 250,
+};
+
+const goalLabels = {
+  fat_loss: "Fat loss",
+  recomposition: "Recomposition",
+  maintenance: "Maintenance",
+  muscle_gain: "Muscle gain",
+};
+
+function n(value: string, fallback = 0) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function calculateProfileSummary(profile: PersonalProfile): ProfileSummary {
+  const age = n(profile.age);
+  const height = n(profile.heightCm);
+  const weight = n(profile.weightKg);
+  const isComplete = age > 0 && height > 0 && weight > 0;
+  const sexOffset = profile.sex === "male" ? 5 : -161;
+  const bmr = isComplete ? Math.round(10 * weight + 6.25 * height - 5 * age + sexOffset) : 0;
+  const tdee = Math.round(bmr * activityMultipliers[profile.activityLevel]);
+  const calories = Math.max(1200, Math.round(tdee + goalAdjustments[profile.goal]));
+  const protein = Math.round(weight * n(profile.proteinPerKg, 2.2));
+  const fat = Math.round((calories * 0.25) / 9);
+  const carbs = Math.max(0, Math.round((calories - protein * 4 - fat * 9) / 4));
+  const heightM = height / 100;
+
+  return {
+    isComplete,
+    bmr,
+    tdee,
+    calories: isComplete ? calories : 0,
+    protein: isComplete ? protein : 0,
+    fat: isComplete ? fat : 0,
+    carbs: isComplete ? carbs : 0,
+    water: n(profile.waterLiters, 3),
+    steps: n(profile.stepsGoal, 10000),
+    sleep: n(profile.sleepGoal, 7.5),
+    bmi: isComplete && heightM > 0 ? Math.round((weight / (heightM * heightM)) * 10) / 10 : 0,
+    goalLabel: goalLabels[profile.goal],
+  };
+}
+
+function garminMetricsFromProfile(profile: PersonalProfile) {
+  return {
+    date: "Today",
+    restingHeartRate: n(profile.garminRestingHeartRate, todaysGarminMetrics.restingHeartRate),
+    hrv: n(profile.garminHrv, todaysGarminMetrics.hrv),
+    hrvBaseline: n(profile.garminHrvBaseline, todaysGarminMetrics.hrvBaseline),
+    restingHeartRateBaseline: n(
+      profile.garminRestingHeartRateBaseline,
+      todaysGarminMetrics.restingHeartRateBaseline,
+    ),
+    sleepDuration: n(profile.garminSleepHours, todaysGarminMetrics.sleepDuration),
+    sleepScore: n(profile.garminSleepScore, todaysGarminMetrics.sleepScore),
+    deepSleepMinutes: todaysGarminMetrics.deepSleepMinutes,
+    remSleepMinutes: todaysGarminMetrics.remSleepMinutes,
+    stressScore: n(profile.garminStressScore, todaysGarminMetrics.stressScore),
+    bodyBattery: n(profile.garminBodyBattery, todaysGarminMetrics.bodyBattery),
+    trainingReadiness: n(profile.garminTrainingReadiness, todaysGarminMetrics.trainingReadiness),
+    trainingStatus: todaysGarminMetrics.trainingStatus,
+    recoveryTimeHours: n(profile.garminRecoveryHours, todaysGarminMetrics.recoveryTimeHours),
+    vo2Max: n(profile.garminVo2Max, todaysGarminMetrics.vo2Max),
+    steps: n(profile.stepsGoal, todaysGarminMetrics.steps),
+    caloriesBurned: todaysGarminMetrics.caloriesBurned,
+    workoutIntensity: n(profile.garminIntensityMinutes, todaysGarminMetrics.workoutIntensity),
+    intensityMinutes: n(profile.garminIntensityMinutes, todaysGarminMetrics.intensityMinutes),
+  };
+}
+
 export function FormaApp() {
   const { theme, setTheme, activeSection, setActiveSection } = useFormaStore();
   const [appData, setAppData] = useState<AppData>(initialAppData);
@@ -143,6 +301,18 @@ export function FormaApp() {
     estimateFoods("2 eggs, chicken breast, jasmine rice"),
   );
   const [chartsReady, setChartsReady] = useState(false);
+  const profileSummary = useMemo(
+    () => calculateProfileSummary(appData.profile),
+    [appData.profile],
+  );
+  const profileGarminMetrics = useMemo(
+    () => garminMetricsFromProfile(appData.profile),
+    [appData.profile],
+  );
+  const profileRecovery = useMemo(
+    () => calculateRecoveryScore(profileGarminMetrics),
+    [profileGarminMetrics],
+  );
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
@@ -153,7 +323,13 @@ export function FormaApp() {
     const saved = window.localStorage.getItem("my-journey-app-data");
     if (saved) {
       try {
-        setAppData({ ...initialAppData, ...JSON.parse(saved) });
+        const parsed = JSON.parse(saved) as Partial<AppData>;
+        setAppData({
+          ...initialAppData,
+          ...parsed,
+          profile: { ...initialProfile, ...parsed.profile },
+          habits: { ...initialAppData.habits, ...parsed.habits },
+        });
       } catch {
         window.localStorage.removeItem("my-journey-app-data");
       }
@@ -204,14 +380,16 @@ export function FormaApp() {
     }
 
     if (action === "weight") {
-      const value = Number(window.prompt("Enter today's weight", String(today.weight)));
+      const defaultWeight = appData.profile.weightKg || String(today.weight);
+      const value = Number(window.prompt("Enter today's weight in kg", defaultWeight));
       if (!Number.isFinite(value) || value <= 0) return;
       setAppData((current) => ({
         ...current,
         weights: [{ id: crypto.randomUUID(), value, loggedAt: new Date().toISOString() }, ...current.weights],
+        profile: { ...current.profile, weightKg: String(value) },
       }));
       scrollToSection("Body");
-      setNotice(`Logged weight: ${value} lb.`);
+      setNotice(`Logged weight: ${value} kg.`);
       return;
     }
 
@@ -255,6 +433,13 @@ export function FormaApp() {
     setAppData((current) => ({
       ...current,
       habits: { ...current.habits, [habit]: !current.habits[habit] },
+    }));
+  }
+
+  function updateProfile(patch: Partial<PersonalProfile>) {
+    setAppData((current) => ({
+      ...current,
+      profile: { ...current.profile, ...patch },
     }));
   }
 
@@ -331,10 +516,28 @@ export function FormaApp() {
 
           <div id="dashboard" className="mt-4 grid scroll-mt-24 gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
             <div className="space-y-4">
-              <HeroOverview chartsReady={chartsReady} onQuickAction={handleQuickAction} />
-              <TodayGrid appData={appData} />
+              <HeroOverview
+                chartsReady={chartsReady}
+                onQuickAction={handleQuickAction}
+                profile={appData.profile}
+                recovery={profileRecovery}
+              />
+              <TodayGrid
+                appData={appData}
+                summary={profileSummary}
+                recovery={profileRecovery}
+              />
+              <ProfileSection
+                profile={appData.profile}
+                summary={profileSummary}
+                onChange={updateProfile}
+                onSaved={() => setNotice("Profile saved. Dashboard targets recalculated.")}
+              />
               <ChallengeProgramSection />
-              <RecoveryDashboard chartsReady={chartsReady} />
+              <RecoveryDashboard
+                chartsReady={chartsReady}
+                profileMetrics={profileGarminMetrics}
+              />
               <WorkoutSection
                 planText={planText}
                 setPlanText={setPlanText}
@@ -394,7 +597,7 @@ function MobileNav({
   onChange: (section: string) => void;
 }) {
   return (
-    <nav className="mt-3 grid grid-cols-7 gap-1 rounded-[22px] border border-[var(--hairline)] bg-[var(--card-strong)] p-1 lg:hidden">
+    <nav className="mt-3 grid grid-cols-9 gap-1 rounded-[22px] border border-[var(--hairline)] bg-[var(--card-strong)] p-1 lg:hidden">
       {sections.map((section) => (
         <button
           key={section.label}
@@ -415,10 +618,15 @@ function MobileNav({
 function HeroOverview({
   chartsReady,
   onQuickAction,
+  profile,
+  recovery,
 }: {
   chartsReady: boolean;
   onQuickAction: (action: string) => void;
+  profile: PersonalProfile;
+  recovery: typeof recoveryToday;
 }) {
+  const greeting = profile.name ? `${profile.name}, ` : "";
   return (
     <section className="glass overflow-hidden rounded-[30px] p-5 sm:p-6">
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
@@ -436,10 +644,10 @@ function HeroOverview({
             transition={{ delay: 0.05 }}
             className="mt-2 max-w-2xl text-4xl font-semibold tracking-tight sm:text-6xl"
           >
-            {recoveryToday.score} is a strong day to train.
+            {greeting}{recovery.score} is your readiness score.
           </motion.h2>
           <p className="mt-4 max-w-xl text-sm leading-6 text-[var(--muted)] sm:text-base">
-            {recoveryToday.recommendation} {recoveryToday.sleepImpact}
+            {recovery.recommendation} {recovery.sleepImpact}
           </p>
           <div className="mt-6 grid grid-cols-2 gap-2 sm:flex">
             {quickActions.map((action) => (
@@ -459,8 +667,8 @@ function HeroOverview({
             <p className="text-sm opacity-60">Recovery score</p>
             <HeartPulse size={18} />
           </div>
-          <p className="mt-4 text-6xl font-semibold">{recoveryToday.score}</p>
-          <p className="mt-1 text-sm opacity-60">{recoveryToday.label}</p>
+          <p className="mt-4 text-6xl font-semibold">{recovery.score}</p>
+          <p className="mt-1 text-sm opacity-60">{recovery.label}</p>
           <div className="mt-6 h-32">
             {chartsReady && (
               <ResponsiveContainer width="100%" height="100%">
@@ -483,23 +691,31 @@ function HeroOverview({
   );
 }
 
-function TodayGrid({ appData }: { appData: AppData }) {
-  const latestWeight = appData.weights[0]?.value ?? today.weight;
+function TodayGrid({
+  appData,
+  summary,
+  recovery,
+}: {
+  appData: AppData;
+  summary: ProfileSummary;
+  recovery: typeof recoveryToday;
+}) {
+  const latestWeight = appData.weights[0]?.value ?? n(appData.profile.weightKg, today.weight);
   const todaysLoggedCalories = appData.foods.reduce((sum, food) => sum + food.calories, 0);
   const todaysLoggedProtein = appData.foods.reduce((sum, food) => sum + food.protein, 0);
   const completedHabits = Object.values(appData.habits).filter(Boolean).length;
   const totalHabits = Object.values(appData.habits).length;
   const cards = [
-    { label: "Current weight", value: `${latestWeight} lb`, detail: appData.weights[0] ? "Logged today on this device" : `${progress.weightChange} lb this week`, icon: Scale },
-    { label: "Daily calories", value: Math.round(todaysLoggedCalories || today.calories), detail: `${percent(todaysLoggedCalories || today.calories, today.calorieGoal)}% of target`, icon: Utensils },
-    { label: "Protein", value: `${Math.round(todaysLoggedProtein || today.protein)} g`, detail: `${Math.max(0, Math.round(today.proteinGoal - (todaysLoggedProtein || today.protein)))} g remaining`, icon: Apple },
-    { label: "Water", value: `${today.water} L`, detail: `${percent(today.water, today.waterGoal)}% complete`, icon: GlassWater },
-    { label: "Steps", value: formatNumber(today.steps), detail: `${percent(today.steps, today.stepsGoal)}% complete`, icon: Watch },
-    { label: "Sleep", value: `${today.sleep} h`, detail: "Good recovery window", icon: Moon },
+    { label: "Current weight", value: latestWeight ? `${latestWeight} kg` : "Set up", detail: appData.weights[0] ? "Logged today on this device" : "Enter profile weight", icon: Scale },
+    { label: "Daily calories", value: Math.round(todaysLoggedCalories || summary.calories || today.calories), detail: `${percent(todaysLoggedCalories || 0, summary.calories || today.calorieGoal)}% logged`, icon: Utensils },
+    { label: "Protein", value: `${Math.round(todaysLoggedProtein || 0)} g`, detail: `${Math.max(0, Math.round((summary.protein || today.proteinGoal) - todaysLoggedProtein))} g remaining`, icon: Apple },
+    { label: "Water target", value: `${summary.water} L`, detail: "Profile target", icon: GlassWater },
+    { label: "Steps target", value: formatNumber(summary.steps), detail: "Profile target", icon: Watch },
+    { label: "Sleep target", value: `${summary.sleep} h`, detail: "Profile target", icon: Moon },
     { label: "Workout", value: appData.workoutSessions ? "Started" : "Planned", detail: appData.workoutSessions ? `${appData.workoutSessions} session logged` : today.workoutStatus, icon: Dumbbell },
     { label: "Habits", value: `${completedHabits}/${totalHabits}`, detail: `${Math.max(0, totalHabits - completedHabits)} left today`, icon: CheckCircle2 },
-    { label: "Recovery", value: `${recoveryToday.score}/100`, detail: recoveryToday.suggestedIntensity, icon: HeartPulse },
-    { label: "Body Battery", value: todaysGarminMetrics.bodyBattery, detail: `${todaysGarminMetrics.recoveryTimeHours}h recovery time`, icon: Battery },
+    { label: "Recovery", value: `${recovery.score}/100`, detail: recovery.suggestedIntensity, icon: HeartPulse },
+    { label: "Body Battery", value: appData.profile.garminBodyBattery || todaysGarminMetrics.bodyBattery, detail: `${appData.profile.garminRecoveryHours || todaysGarminMetrics.recoveryTimeHours}h recovery time`, icon: Battery },
   ];
 
   return (
@@ -518,11 +734,136 @@ function TodayGrid({ appData }: { appData: AppData }) {
   );
 }
 
-function RecoveryDashboard({ chartsReady }: { chartsReady: boolean }) {
-  const [manualMetrics, setManualMetrics] = useState(todaysGarminMetrics);
+function ProfileSection({
+  profile,
+  summary,
+  onChange,
+  onSaved,
+}: {
+  profile: PersonalProfile;
+  summary: ProfileSummary;
+  onChange: (patch: Partial<PersonalProfile>) => void;
+  onSaved: () => void;
+}) {
+  return (
+    <section id="profile" className="panel scroll-mt-24 rounded-[30px] p-5">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <p className="text-xs uppercase tracking-[0.24em] text-[var(--muted)]">Your profile</p>
+          <h2 className="mt-2 text-3xl font-semibold tracking-tight">Personal targets and Garmin inputs</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--muted)]">
+            Enter your real numbers here. My Journey calculates calories, macros, hydration, steps, BMI, and recovery from your profile.
+          </p>
+        </div>
+        <button
+          onClick={onSaved}
+          className="h-11 rounded-full bg-black px-5 text-sm font-medium text-white dark:bg-white dark:text-black"
+        >
+          Save profile
+        </button>
+      </div>
+
+      <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <div className="space-y-4">
+          <div className="rounded-[24px] border border-[var(--hairline)] p-4">
+            <SectionTitle icon={UserRound} title="Body and goal" />
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <ProfileField label="Name" value={profile.name} onChange={(name) => onChange({ name })} />
+              <ProfileField label="Age" value={profile.age} inputMode="numeric" onChange={(age) => onChange({ age })} />
+              <ProfileSelect label="Sex" value={profile.sex} onChange={(sex) => onChange({ sex: sex as PersonalProfile["sex"] })} options={[["male", "Male"], ["female", "Female"]]} />
+              <ProfileField label="Height" unit="cm" value={profile.heightCm} inputMode="decimal" onChange={(heightCm) => onChange({ heightCm })} />
+              <ProfileField label="Weight" unit="kg" value={profile.weightKg} inputMode="decimal" onChange={(weightKg) => onChange({ weightKg })} />
+              <ProfileField label="Waist" unit="cm" value={profile.waistCm} inputMode="decimal" onChange={(waistCm) => onChange({ waistCm })} />
+              <ProfileField label="Body fat" unit="%" value={profile.bodyFatPercent} inputMode="decimal" onChange={(bodyFatPercent) => onChange({ bodyFatPercent })} />
+              <ProfileSelect
+                label="Goal"
+                value={profile.goal}
+                onChange={(goal) => onChange({ goal: goal as PersonalProfile["goal"] })}
+                options={[
+                  ["fat_loss", "Fat loss"],
+                  ["recomposition", "Recomposition"],
+                  ["maintenance", "Maintenance"],
+                  ["muscle_gain", "Muscle gain"],
+                ]}
+              />
+              <ProfileSelect
+                label="Activity"
+                value={profile.activityLevel}
+                onChange={(activityLevel) => onChange({ activityLevel: activityLevel as PersonalProfile["activityLevel"] })}
+                options={[
+                  ["sedentary", "Mostly sitting"],
+                  ["light", "Light activity"],
+                  ["moderate", "Moderate training"],
+                  ["very_active", "Very active"],
+                  ["athlete", "Athlete"],
+                ]}
+              />
+              <ProfileField label="Protein" unit="g/kg" value={profile.proteinPerKg} inputMode="decimal" onChange={(proteinPerKg) => onChange({ proteinPerKg })} />
+              <ProfileField label="Water" unit="L" value={profile.waterLiters} inputMode="decimal" onChange={(waterLiters) => onChange({ waterLiters })} />
+              <ProfileField label="Steps" unit="/day" value={profile.stepsGoal} inputMode="numeric" onChange={(stepsGoal) => onChange({ stepsGoal })} />
+              <ProfileField label="Sleep" unit="h" value={profile.sleepGoal} inputMode="decimal" onChange={(sleepGoal) => onChange({ sleepGoal })} />
+            </div>
+          </div>
+
+          <div className="rounded-[24px] border border-[var(--hairline)] p-4">
+            <SectionTitle icon={Watch} title="Garmin numbers" />
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <ProfileField label="HRV today" unit="ms" value={profile.garminHrv} inputMode="decimal" onChange={(garminHrv) => onChange({ garminHrv })} />
+              <ProfileField label="HRV baseline" unit="ms" value={profile.garminHrvBaseline} inputMode="decimal" onChange={(garminHrvBaseline) => onChange({ garminHrvBaseline })} />
+              <ProfileField label="Resting HR" unit="bpm" value={profile.garminRestingHeartRate} inputMode="decimal" onChange={(garminRestingHeartRate) => onChange({ garminRestingHeartRate })} />
+              <ProfileField label="RHR baseline" unit="bpm" value={profile.garminRestingHeartRateBaseline} inputMode="decimal" onChange={(garminRestingHeartRateBaseline) => onChange({ garminRestingHeartRateBaseline })} />
+              <ProfileField label="Sleep" unit="h" value={profile.garminSleepHours} inputMode="decimal" onChange={(garminSleepHours) => onChange({ garminSleepHours })} />
+              <ProfileField label="Sleep score" value={profile.garminSleepScore} inputMode="numeric" onChange={(garminSleepScore) => onChange({ garminSleepScore })} />
+              <ProfileField label="Stress" value={profile.garminStressScore} inputMode="numeric" onChange={(garminStressScore) => onChange({ garminStressScore })} />
+              <ProfileField label="Body Battery" value={profile.garminBodyBattery} inputMode="numeric" onChange={(garminBodyBattery) => onChange({ garminBodyBattery })} />
+              <ProfileField label="Training readiness" value={profile.garminTrainingReadiness} inputMode="numeric" onChange={(garminTrainingReadiness) => onChange({ garminTrainingReadiness })} />
+              <ProfileField label="Recovery time" unit="h" value={profile.garminRecoveryHours} inputMode="decimal" onChange={(garminRecoveryHours) => onChange({ garminRecoveryHours })} />
+              <ProfileField label="VO2 max" value={profile.garminVo2Max} inputMode="decimal" onChange={(garminVo2Max) => onChange({ garminVo2Max })} />
+              <ProfileField label="Intensity minutes" value={profile.garminIntensityMinutes} inputMode="numeric" onChange={(garminIntensityMinutes) => onChange({ garminIntensityMinutes })} />
+            </div>
+          </div>
+        </div>
+
+        <aside className="space-y-3">
+          <div className="rounded-[24px] bg-black p-4 text-white dark:bg-white dark:text-black">
+            <p className="text-sm opacity-60">Calculated target</p>
+            <p className="mt-3 text-5xl font-semibold">{summary.calories || "--"}</p>
+            <p className="mt-1 text-sm opacity-60">daily calories · {summary.goalLabel}</p>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Macro label="BMR" value={summary.bmr} unit="kcal" />
+            <Macro label="TDEE" value={summary.tdee} unit="kcal" />
+            <Macro label="Protein" value={summary.protein} unit="g" />
+            <Macro label="Carbs" value={summary.carbs} unit="g" />
+            <Macro label="Fat" value={summary.fat} unit="g" />
+            <Macro label="BMI" value={summary.bmi} unit="" />
+          </div>
+          {!summary.isComplete && (
+            <div className="rounded-[20px] border border-amber-500/30 bg-amber-500/10 p-3 text-sm leading-6 text-[var(--muted)]">
+              Enter age, height, and weight to calculate your targets.
+            </div>
+          )}
+        </aside>
+      </div>
+    </section>
+  );
+}
+
+function RecoveryDashboard({
+  chartsReady,
+  profileMetrics,
+}: {
+  chartsReady: boolean;
+  profileMetrics: typeof todaysGarminMetrics;
+}) {
+  const [manualMetrics, setManualMetrics] = useState(profileMetrics);
   const recovery = useMemo(() => calculateRecoveryScore(manualMetrics), [manualMetrics]);
   const positiveFactors = recovery.factors.filter((factor) => factor.impact === "positive");
   const limitingFactors = recovery.factors.filter((factor) => factor.impact !== "positive");
+
+  useEffect(() => {
+    setManualMetrics(profileMetrics);
+  }, [profileMetrics]);
 
   function updateMetric(key: keyof typeof manualMetrics, value: number) {
     setManualMetrics((current) => ({ ...current, [key]: value }));
@@ -832,15 +1173,15 @@ function RightRail({
   appData: AppData;
   onToggleHabit: (habit: string) => void;
 }) {
-  const latestWeight = appData.weights[0]?.value ?? today.weight;
+  const latestWeight = appData.weights[0]?.value ?? n(appData.profile.weightKg, 0);
 
   return (
     <aside className="space-y-4">
       <div id="body" className="panel scroll-mt-24 rounded-[28px] p-5">
         <SectionTitle icon={HeartPulse} title="Body and recovery" />
         <div className="mt-5 grid grid-cols-2 gap-3">
-          <Macro label="Weight" value={latestWeight} unit="lb" />
-          <Macro label="Body fat" value={14.2} unit="%" />
+          <Macro label="Weight" value={latestWeight} unit="kg" />
+          <Macro label="Body fat" value={n(appData.profile.bodyFatPercent, 0)} unit="%" />
           <Macro label="Sleep avg" value={7.3} unit="h" />
           <Macro label="Photos" value={appData.photos} unit="" />
         </div>
@@ -939,6 +1280,64 @@ function ImpactCard({
       <p className="mt-3 text-3xl font-semibold">{value}</p>
       <p className="mt-1 text-sm leading-5 text-[var(--muted)]">{detail}</p>
     </div>
+  );
+}
+
+function ProfileField({
+  label,
+  value,
+  unit,
+  inputMode = "text",
+  onChange,
+}: {
+  label: string;
+  value: string;
+  unit?: string;
+  inputMode?: "text" | "numeric" | "decimal";
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="block rounded-[18px] bg-black/[0.04] p-3 dark:bg-white/[0.06]">
+      <span className="text-xs text-[var(--muted)]">{label}</span>
+      <div className="mt-2 flex items-center rounded-xl border border-[var(--hairline)]">
+        <input
+          value={value}
+          inputMode={inputMode}
+          onChange={(event) => onChange(event.target.value)}
+          className="h-9 min-w-0 flex-1 bg-transparent px-3 text-sm outline-none"
+        />
+        {unit && <span className="px-3 text-xs text-[var(--muted)]">{unit}</span>}
+      </div>
+    </label>
+  );
+}
+
+function ProfileSelect({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  options: Array<[string, string]>;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="block rounded-[18px] bg-black/[0.04] p-3 dark:bg-white/[0.06]">
+      <span className="text-xs text-[var(--muted)]">{label}</span>
+      <select
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="mt-2 h-9 w-full rounded-xl border border-[var(--hairline)] bg-[var(--card-strong)] px-3 text-sm outline-none"
+      >
+        {options.map(([optionValue, optionLabel]) => (
+          <option key={optionValue} value={optionValue}>
+            {optionLabel}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 }
 

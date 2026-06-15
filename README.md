@@ -12,6 +12,7 @@ My Journey is a personal fitness, nutrition, health, and performance operating s
 ## Implemented
 
 - Premium dashboard-first interface with light and dark mode
+- Personal profile setup with body stats, goals, calculated calories/macros, and Garmin readiness inputs
 - Today overview, progress summary, quick actions, habits, recovery, and analytics
 - Workout plans, exercise database preview, and AI workout text importer
 - Nutrition tracker with food estimate flow, confidence labels, and verified-source structure
@@ -48,4 +49,4 @@ GARMIN_CLIENT_SECRET=
 
 Run `supabase/schema.sql` in the Supabase SQL editor. See `docs/SETUP.md` for Supabase and Vercel steps.
 
-Challenge logs are local-first today and saved in the browser. The schema includes challenge tables for moving logs into Supabase later.
+Profile and challenge logs are local-first today and saved in the browser. The schema includes tables for moving logs into Supabase later.

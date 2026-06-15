@@ -15,12 +15,17 @@ My Journey is a personal-use health operating system built with Next.js 15, Reac
 ## Data Flow
 
 1. The UI reads user state through Supabase clients and caches server data with React Query.
-2. Quick client interactions, theme, and current navigation use Zustand.
-3. Verified foods are fetched through API routes, cached locally in Supabase, and prioritized over AI estimates.
-4. AI nutrition estimates and workout imports are treated as drafts until the user reviews and saves them.
-5. Analytics read normalized logs from Supabase and render with Recharts.
-6. Garmin daily metrics can arrive from a future API sync or from manual entry; both paths feed the same transparent recovery scoring model.
-7. The 30-day AI fitness challenge imports a static JSON program, stores user logs locally first, and can export progress as JSON or CSV.
+2. Personal profile, daily logs, challenge progress, and Garmin manual inputs are local-first today and persisted in browser storage.
+3. Quick client interactions, theme, and current navigation use Zustand.
+4. Verified foods are fetched through API routes, cached locally in Supabase, and prioritized over AI estimates.
+5. AI nutrition estimates and workout imports are treated as drafts until the user reviews and saves them.
+6. Analytics read normalized logs from Supabase and render with Recharts.
+7. Garmin daily metrics can arrive from a future API sync or from profile/manual entry; both paths feed the same transparent recovery scoring model.
+8. The 30-day AI fitness challenge imports a static JSON program, stores user logs locally first, and can export progress as JSON or CSV.
+
+## Personal Profile
+
+The profile section stores age, sex, height, weight, waist, body fat, goal, activity level, protein preference, water, steps, sleep, and Garmin values. It calculates BMR, TDEE, calorie target, protein, carbs, fat, BMI, water target, step target, sleep target, and recovery score inputs. This is local-first under `my-journey-app-data`.
 
 ## API Routes
 
