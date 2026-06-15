@@ -20,6 +20,7 @@ My Journey is a personal-use health operating system built with Next.js 15, Reac
 4. AI nutrition estimates and workout imports are treated as drafts until the user reviews and saves them.
 5. Analytics read normalized logs from Supabase and render with Recharts.
 6. Garmin daily metrics can arrive from a future API sync or from manual entry; both paths feed the same transparent recovery scoring model.
+7. The 30-day AI fitness challenge imports a static JSON program, stores user logs locally first, and can export progress as JSON or CSV.
 
 ## API Routes
 
@@ -51,6 +52,23 @@ Score labels:
 - 70-100: High Recovery
 
 The formula lives in `src/lib/recovery-score.ts`. Weights are returned by the API and stored with each recovery score so they can later be adjusted in settings without losing historical context.
+
+## AI Fitness Challenge
+
+The “I Let AI Control My Fitness For 30 Days” module lives in `src/components/challenge-program.tsx` and imports its full plan from `src/data/ai-fitness-program.json`.
+
+It includes:
+
+- Day selector for Days 1-30.
+- Daily workout type, exercises, sets, reps, rest, cardio, nutrition targets, and TikTok content prompt.
+- Daily scorecard using the required 100-point formula.
+- Daily tracking fields for weight, waist, sleep, energy, mood, workout completion, steps, calories, protein, water, and notes.
+- Checkpoint screens on Days 7, 14, 21, and 30.
+- Adaptation modes for missed workout, travel/hotel gym, no gym, and sick/recovery.
+- Local browser persistence under `my-journey-ai-fitness-challenge`.
+- JSON and CSV exports.
+
+Supabase-ready tables are included in `supabase/schema.sql`: `challenge_programs`, `challenge_days`, `daily_logs`, and `checkpoint_logs`.
 
 ## Authentication Flow
 

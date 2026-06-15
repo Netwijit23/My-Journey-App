@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   ChevronRight,
   Dumbbell,
+  Flame,
   Gauge,
   GlassWater,
   HeartPulse,
@@ -40,6 +41,7 @@ import {
   YAxis,
 } from "recharts";
 
+import { ChallengeProgramSection } from "@/components/challenge-program";
 import { estimateFoods } from "@/lib/food-estimator";
 import { calculateRecoveryScore } from "@/lib/recovery-score";
 import {
@@ -59,6 +61,7 @@ import { cn, formatNumber, percent } from "@/lib/utils";
 
 const sections = [
   { label: "Dashboard", icon: Home },
+  { label: "Challenge", icon: Flame },
   { label: "Recovery", icon: HeartPulse },
   { label: "Workout", icon: Dumbbell },
   { label: "Nutrition", icon: Utensils },
@@ -330,6 +333,7 @@ export function FormaApp() {
             <div className="space-y-4">
               <HeroOverview chartsReady={chartsReady} onQuickAction={handleQuickAction} />
               <TodayGrid appData={appData} />
+              <ChallengeProgramSection />
               <RecoveryDashboard chartsReady={chartsReady} />
               <WorkoutSection
                 planText={planText}

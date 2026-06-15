@@ -323,6 +323,73 @@ create table public.recovery_score_factors (
   created_at timestamptz not null default now()
 );
 
+create table public.challenge_programs (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users(id) on delete cascade,
+  name text not null,
+  slug text not null,
+  version text,
+  description text,
+  nutrition_targets jsonb not null default '{}'::jsonb,
+  rules jsonb not null default '[]'::jsonb,
+  adaptation_protocol jsonb not null default '{}'::jsonb,
+  source_payload jsonb,
+  created_at timestamptz not null default now(),
+  unique (user_id, slug)
+);
+
+create table public.challenge_days (
+  id uuid primary key default gen_random_uuid(),
+  program_id uuid not null references public.challenge_programs(id) on delete cascade,
+  day_number integer not null check (day_number between 1 and 365),
+  week_number integer,
+  workout_type text not null,
+  exercises jsonb not null default '[]'::jsonb,
+  cardio text,
+  nutrition_targets jsonb not null default '{}'::jsonb,
+  content_prompt jsonb not null default '{}'::jsonb,
+  checkpoint jsonb,
+  created_at timestamptz not null default now(),
+  unique (program_id, day_number)
+);
+
+create table public.daily_logs (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  challenge_day_id uuid references public.challenge_days(id) on delete set null,
+  log_date date not null default current_date,
+  day_number integer not null,
+  weight_kg numeric(8,2),
+  waist_cm numeric(8,2),
+  sleep_hours numeric(4,2),
+  energy_level integer check (energy_level between 1 and 10),
+  mood_level integer check (mood_level between 1 and 10),
+  workout_completed boolean not null default false,
+  step_count integer,
+  calories integer,
+  protein_g integer,
+  water_liters numeric(4,2),
+  notes text,
+  adaptation_mode text not null default 'none',
+  daily_score integer not null default 0 check (daily_score between 0 and 100),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (user_id, day_number)
+);
+
+create table public.checkpoint_logs (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  challenge_day_id uuid references public.challenge_days(id) on delete set null,
+  day_number integer not null check (day_number in (7, 14, 21, 30)),
+  measurements text,
+  progress text,
+  adjustment text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (user_id, day_number)
+);
+
 alter table public.profiles enable row level security;
 alter table public.exercises enable row level security;
 alter table public.workout_plans enable row level security;
@@ -345,6 +412,10 @@ alter table public.garmin_daily_metrics enable row level security;
 alter table public.garmin_workouts enable row level security;
 alter table public.recovery_scores enable row level security;
 alter table public.recovery_score_factors enable row level security;
+alter table public.challenge_programs enable row level security;
+alter table public.challenge_days enable row level security;
+alter table public.daily_logs enable row level security;
+alter table public.checkpoint_logs enable row level security;
 
 create policy "Users manage own profiles" on public.profiles
   for all using (auth.uid() = id) with check (auth.uid() = id);
@@ -390,6 +461,22 @@ create policy "Users manage own garmin workouts" on public.garmin_workouts
 create policy "Users manage own recovery scores" on public.recovery_scores
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "Users manage own recovery score factors" on public.recovery_score_factors
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "Users read challenge programs" on public.challenge_programs
+  for select using (user_id is null or auth.uid() = user_id);
+create policy "Users manage own challenge programs" on public.challenge_programs
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "Users read challenge days" on public.challenge_days
+  for select using (
+    exists (
+      select 1 from public.challenge_programs
+      where challenge_programs.id = challenge_days.program_id
+      and (challenge_programs.user_id is null or challenge_programs.user_id = auth.uid())
+    )
+  );
+create policy "Users manage own daily logs" on public.daily_logs
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "Users manage own checkpoint logs" on public.checkpoint_logs
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 insert into public.food_sources (name, priority)

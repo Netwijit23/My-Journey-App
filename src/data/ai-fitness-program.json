@@ -1,0 +1,1708 @@
+{
+  "program_name": "I Let AI Control My Fitness For 30 Days",
+  "app_name": "Forma",
+  "version": "1.0",
+  "nutrition": {
+    "profile": {
+      "age": 27,
+      "birthday": "July 14",
+      "height_cm": 180,
+      "weight_kg": 89.0,
+      "estimated_body_fat_percent": 21,
+      "gender": "male",
+      "location": "Bangkok, Thailand",
+      "experience": "intermediate-advanced",
+      "gym_access": "commercial gym",
+      "activity_level": "workout 5-6 days/week, otherwise mostly sitting/walking"
+    },
+    "targets": {
+      "training_day_calories": 2300,
+      "rest_day_calories": 2100,
+      "protein_g": 220,
+      "fat_g": 65,
+      "training_day_carbs_g": 200,
+      "rest_day_carbs_g": 150,
+      "water_liters": 3,
+      "steps": 10000,
+      "sleep_hours": 7.5
+    },
+    "meals_thailand": [
+      {
+        "name": "Breakfast",
+        "foods": [
+          "4 eggs",
+          "200g egg whites",
+          "1 banana",
+          "black coffee"
+        ]
+      },
+      {
+        "name": "Lunch",
+        "foods": [
+          "250g grilled chicken breast",
+          "250g jasmine rice",
+          "vegetables"
+        ]
+      },
+      {
+        "name": "Snack",
+        "foods": [
+          "Greek yogurt",
+          "whey protein",
+          "apple"
+        ]
+      },
+      {
+        "name": "Dinner",
+        "foods": [
+          "250g lean beef or fish",
+          "150g jasmine rice",
+          "vegetables"
+        ]
+      },
+      {
+        "name": "Before Bed",
+        "foods": [
+          "protein shake or Greek yogurt"
+        ]
+      }
+    ],
+    "supplements_optional": [
+      "whey protein",
+      "creatine 5g/day",
+      "fish oil",
+      "magnesium glycinate"
+    ]
+  },
+  "rules": [
+    "Complete the scheduled workout unless sick or injured.",
+    "Hit 220g protein daily.",
+    "Drink at least 3L water daily.",
+    "Walk at least 10,000 steps daily.",
+    "Sleep at least 7.5 hours where possible.",
+    "No alcohol during the 30-day challenge.",
+    "No liquid calories.",
+    "No cheat days; use controlled meals only.",
+    "Track weight, waist, sleep, energy, mood, workout completion, and steps daily.",
+    "If one day is missed, resume immediately the next day. Do not double workouts."
+  ],
+  "tracking_schema": {
+    "daily_fields": [
+      {
+        "key": "weight_kg",
+        "type": "number",
+        "unit": "kg"
+      },
+      {
+        "key": "waist_cm",
+        "type": "number",
+        "unit": "cm"
+      },
+      {
+        "key": "sleep_hours",
+        "type": "number",
+        "unit": "hours"
+      },
+      {
+        "key": "energy_level",
+        "type": "integer",
+        "range": [
+          1,
+          10
+        ]
+      },
+      {
+        "key": "mood_level",
+        "type": "integer",
+        "range": [
+          1,
+          10
+        ]
+      },
+      {
+        "key": "workout_completed",
+        "type": "boolean"
+      },
+      {
+        "key": "step_count",
+        "type": "integer"
+      },
+      {
+        "key": "calories",
+        "type": "integer"
+      },
+      {
+        "key": "protein_g",
+        "type": "integer"
+      },
+      {
+        "key": "water_liters",
+        "type": "number"
+      },
+      {
+        "key": "notes",
+        "type": "string"
+      }
+    ],
+    "score_formula": {
+      "weight_logged": 10,
+      "waist_logged": 10,
+      "sleep_7_5_plus": 15,
+      "steps_10000_plus": 15,
+      "workout_completed": 20,
+      "protein_220g_plus": 20,
+      "water_3l_plus": 10,
+      "total": 100
+    }
+  },
+  "checkpoints": {
+    "day_7": {
+      "record": [
+        "weight",
+        "waist",
+        "front/side/back photos",
+        "sleep average",
+        "energy average",
+        "step average"
+      ],
+      "expected": "0.5kg to 1.5kg weight loss and 1cm to 2cm waist reduction.",
+      "adjustment": "If no progress, increase daily steps to 12,000."
+    },
+    "day_14": {
+      "record": [
+        "weight",
+        "waist",
+        "photos",
+        "strength changes",
+        "calorie compliance"
+      ],
+      "expected": "1kg to 2kg weight loss and 2cm to 4cm waist reduction.",
+      "adjustment": "If stalled, remove 150 kcal/day."
+    },
+    "day_21": {
+      "record": [
+        "weight",
+        "waist",
+        "photos",
+        "energy",
+        "digestion",
+        "strength"
+      ],
+      "expected": "2kg to 3kg weight loss and visible face/waist changes.",
+      "adjustment": "If stalled, add 10 minutes cardio."
+    },
+    "day_30": {
+      "record": [
+        "final weight",
+        "final waist",
+        "front/side/back photos",
+        "strength changes",
+        "energy",
+        "transformation recap"
+      ],
+      "expected": "2kg to 4kg weight loss and 3cm to 7cm waist reduction.",
+      "adjustment": "Move into a sustainable phase instead of extreme dieting."
+    }
+  },
+  "adaptation_protocol": {
+    "missed_workout": [
+      "Do not double up the next day.",
+      "Resume the plan from the next scheduled day.",
+      "Mark workout completion as no and write the reason in notes.",
+      "Still complete steps, protein, water, and sleep targets."
+    ],
+    "travel_hotel_gym": {
+      "instructions": "Complete 3-4 rounds with controlled tempo.",
+      "workout": [
+        "Goblet squat x20",
+        "Dumbbell bench press x15",
+        "One-arm dumbbell row x15/side",
+        "Walking lunges x20 steps",
+        "Lateral raises x20",
+        "Plank 60 sec"
+      ]
+    },
+    "no_gym": {
+      "instructions": "Complete 5 rounds. Rest 60-90 sec between rounds.",
+      "workout": [
+        "Pushups x20",
+        "Bodyweight squats x20",
+        "Reverse lunges x20",
+        "Situps x20",
+        "Plank 60 sec"
+      ]
+    },
+    "sick": [
+      "If fever or heavy symptoms: no training.",
+      "Walk only if comfortable.",
+      "Maintain protein and hydration.",
+      "Resume training after symptoms improve."
+    ]
+  },
+  "days": [
+    {
+      "day": 1,
+      "type": "Push",
+      "week": 1,
+      "calories": 2300,
+      "protein": 220,
+      "fat": 65,
+      "carbs": 200,
+      "cardio": "20 min incline walk",
+      "workout": [
+        [
+          "Bench Press",
+          "4",
+          "6-8",
+          "90 sec"
+        ],
+        [
+          "Incline Dumbbell Press",
+          "3",
+          "8-10",
+          "75 sec"
+        ],
+        [
+          "Machine Chest Press",
+          "3",
+          "10-12",
+          "60 sec"
+        ],
+        [
+          "Seated Shoulder Press",
+          "3",
+          "8-10",
+          "75 sec"
+        ],
+        [
+          "Lateral Raises",
+          "4",
+          "15",
+          "45 sec"
+        ],
+        [
+          "Tricep Pushdown",
+          "3",
+          "12",
+          "45 sec"
+        ]
+      ],
+      "hook": "AI took over my fitness.",
+      "title": "AI Controls My Fitness Day 1",
+      "angle": "Show weigh-in, waist, workout clips, meals, and end-of-day scorecard."
+    },
+    {
+      "day": 2,
+      "type": "Pull",
+      "week": 1,
+      "calories": 2300,
+      "protein": 220,
+      "fat": 65,
+      "carbs": 200,
+      "cardio": "20 min incline walk",
+      "workout": [
+        [
+          "Pullups",
+          "4",
+          "AMRAP",
+          "90 sec"
+        ],
+        [
+          "Lat Pulldown",
+          "3",
+          "10",
+          "75 sec"
+        ],
+        [
+          "Chest Supported Row",
+          "4",
+          "10",
+          "75 sec"
+        ],
+        [
+          "Cable Row",
+          "3",
+          "12",
+          "60 sec"
+        ],
+        [
+          "Face Pull",
+          "4",
+          "15",
+          "45 sec"
+        ],
+        [
+          "Hammer Curl",
+          "3",
+          "12",
+          "45 sec"
+        ],
+        [
+          "EZ Curl",
+          "3",
+          "12",
+          "45 sec"
+        ]
+      ],
+      "hook": "Already questioning AI.",
+      "title": "AI Controls My Fitness Day 2",
+      "angle": "Show weigh-in, waist, workout clips, meals, and end-of-day scorecard."
+    },
+    {
+      "day": 3,
+      "type": "Legs",
+      "week": 1,
+      "calories": 2300,
+      "protein": 220,
+      "fat": 65,
+      "carbs": 200,
+      "cardio": "20 min incline walk",
+      "workout": [
+        [
+          "Back Squat",
+          "4",
+          "6",
+          "120 sec"
+        ],
+        [
+          "Romanian Deadlift",
+          "4",
+          "8",
+          "90 sec"
+        ],
+        [
+          "Leg Press",
+          "3",
+          "12",
+          "90 sec"
+        ],
+        [
+          "Walking Lunges",
+          "3",
+          "20 steps",
+          "75 sec"
+        ],
+        [
+          "Leg Curl",
+          "3",
+          "15",
+          "60 sec"
+        ],
+        [
+          "Calf Raises",
+          "4",
+          "15",
+          "45 sec"
+        ]
+      ],
+      "hook": "AI destroyed my legs.",
+      "title": "AI Controls My Fitness Day 3",
+      "angle": "Show weigh-in, waist, workout clips, meals, and end-of-day scorecard."
+    },
+    {
+      "day": 4,
+      "type": "Push",
+      "week": 1,
+      "calories": 2300,
+      "protein": 220,
+      "fat": 65,
+      "carbs": 200,
+      "cardio": "20 min incline walk",
+      "workout": [
+        [
+          "Bench Press",
+          "4",
+          "6-8",
+          "90 sec"
+        ],
+        [
+          "Incline Dumbbell Press",
+          "3",
+          "8-10",
+          "75 sec"
+        ],
+        [
+          "Machine Chest Press",
+          "3",
+          "10-12",
+          "60 sec"
+        ],
+        [
+          "Seated Shoulder Press",
+          "3",
+          "8-10",
+          "75 sec"
+        ],
+        [
+          "Lateral Raises",
+          "4",
+          "15",
+          "45 sec"
+        ],
+        [
+          "Tricep Pushdown",
+          "3",
+          "12",
+          "45 sec"
+        ]
+      ],
+      "hook": "I was sore everywhere.",
+      "title": "AI Controls My Fitness Day 4",
+      "angle": "Show weigh-in, waist, workout clips, meals, and end-of-day scorecard."
+    },
+    {
+      "day": 5,
+      "type": "Pull",
+      "week": 1,
+      "calories": 2300,
+      "protein": 220,
+      "fat": 65,
+      "carbs": 200,
+      "cardio": "20 min incline walk",
+      "workout": [
+        [
+          "Pullups",
+          "4",
+          "AMRAP",
+          "90 sec"
+        ],
+        [
+          "Lat Pulldown",
+          "3",
+          "10",
+          "75 sec"
+        ],
+        [
+          "Chest Supported Row",
+          "4",
+          "10",
+          "75 sec"
+        ],
+        [
+          "Cable Row",
+          "3",
+          "12",
+          "60 sec"
+        ],
+        [
+          "Face Pull",
+          "4",
+          "15",
+          "45 sec"
+        ],
+        [
+          "Hammer Curl",
+          "3",
+          "12",
+          "45 sec"
+        ],
+        [
+          "EZ Curl",
+          "3",
+          "12",
+          "45 sec"
+        ]
+      ],
+      "hook": "Something changed already.",
+      "title": "AI Controls My Fitness Day 5",
+      "angle": "Show weigh-in, waist, workout clips, meals, and end-of-day scorecard."
+    },
+    {
+      "day": 6,
+      "type": "Legs + Conditioning",
+      "week": 1,
+      "calories": 2300,
+      "protein": 220,
+      "fat": 65,
+      "carbs": 200,
+      "cardio": "20 min incline walk",
+      "workout": [
+        [
+          "Front Squat",
+          "4",
+          "8",
+          "90 sec"
+        ],
+        [
+          "Leg Press",
+          "4",
+          "12",
+          "90 sec"
+        ],
+        [
+          "Leg Curl",
+          "4",
+          "12",
+          "60 sec"
+        ],
+        [
+          "Bike Sprints",
+          "10",
+          "20 sec hard / 100 sec easy",
+          "As listed"
+        ]
+      ],
+      "hook": "This workout humbled me.",
+      "title": "AI Controls My Fitness Day 6",
+      "angle": "Show weigh-in, waist, workout clips, meals, and end-of-day scorecard."
+    },
+    {
+      "day": 7,
+      "type": "Recovery",
+      "week": 1,
+      "calories": 2100,
+      "protein": 220,
+      "fat": 65,
+      "carbs": 150,
+      "cardio": "Optional easy walk only",
+      "workout": [
+        [
+          "Steps",
+          "1",
+          "10,000+",
+          "All day"
+        ],
+        [
+          "Mobility",
+          "1",
+          "20 min",
+          "Easy"
+        ],
+        [
+          "Stretching",
+          "1",
+          "10 min",
+          "Easy"
+        ]
+      ],
+      "hook": "One week check-in.",
+      "title": "AI Controls My Fitness Day 7",
+      "angle": "Show weigh-in, waist, workout clips, meals, and end-of-day scorecard."
+    },
+    {
+      "day": 8,
+      "type": "Push",
+      "week": 2,
+      "calories": 2300,
+      "protein": 220,
+      "fat": 65,
+      "carbs": 200,
+      "cardio": "25 min incline walk",
+      "workout": [
+        [
+          "Bench Press",
+          "4",
+          "6-8",
+          "90 sec"
+        ],
+        [
+          "Incline Dumbbell Press",
+          "3",
+          "8-10",
+          "75 sec"
+        ],
+        [
+          "Machine Chest Press",
+          "3",
+          "10-12",
+          "60 sec"
+        ],
+        [
+          "Seated Shoulder Press",
+          "3",
+          "8-10",
+          "75 sec"
+        ],
+        [
+          "Lateral Raises",
+          "4",
+          "15",
+          "45 sec"
+        ],
+        [
+          "Tricep Pushdown",
+          "3",
+          "12",
+          "45 sec"
+        ]
+      ],
+      "hook": "Week two starts now.",
+      "title": "AI Controls My Fitness Day 8",
+      "angle": "Show weigh-in, waist, workout clips, meals, and end-of-day scorecard."
+    },
+    {
+      "day": 9,
+      "type": "Pull",
+      "week": 2,
+      "calories": 2300,
+      "protein": 220,
+      "fat": 65,
+      "carbs": 200,
+      "cardio": "25 min incline walk",
+      "workout": [
+        [
+          "Pullups",
+          "4",
+          "AMRAP",
+          "90 sec"
+        ],
+        [
+          "Lat Pulldown",
+          "3",
+          "10",
+          "75 sec"
+        ],
+        [
+          "Chest Supported Row",
+          "4",
+          "10",
+          "75 sec"
+        ],
+        [
+          "Cable Row",
+          "3",
+          "12",
+          "60 sec"
+        ],
+        [
+          "Face Pull",
+          "4",
+          "15",
+          "45 sec"
+        ],
+        [
+          "Hammer Curl",
+          "3",
+          "12",
+          "45 sec"
+        ],
+        [
+          "EZ Curl",
+          "3",
+          "12",
+          "45 sec"
+        ]
+      ],
+      "hook": "AI is getting aggressive.",
+      "title": "AI Controls My Fitness Day 9",
+      "angle": "Show weigh-in, waist, workout clips, meals, and end-of-day scorecard."
+    },
+    {
+      "day": 10,
+      "type": "Legs",
+      "week": 2,
+      "calories": 2300,
+      "protein": 220,
+      "fat": 65,
+      "carbs": 200,
+      "cardio": "25 min incline walk",
+      "workout": [
+        [
+          "Back Squat",
+          "4",
+          "6",
+          "120 sec"
+        ],
+        [
+          "Romanian Deadlift",
+          "4",
+          "8",
+          "90 sec"
+        ],
+        [
+          "Leg Press",
+          "3",
+          "12",
+          "90 sec"
+        ],
+        [
+          "Walking Lunges",
+          "3",
+          "20 steps",
+          "75 sec"
+        ],
+        [
+          "Leg Curl",
+          "3",
+          "15",
+          "60 sec"
+        ],
+        [
+          "Calf Raises",
+          "4",
+          "15",
+          "45 sec"
+        ]
+      ],
+      "hook": "Legs again. Send help.",
+      "title": "AI Controls My Fitness Day 10",
+      "angle": "Show weigh-in, waist, workout clips, meals, and end-of-day scorecard."
+    },
+    {
+      "day": 11,
+      "type": "Push",
+      "week": 2,
+      "calories": 2300,
+      "protein": 220,
+      "fat": 65,
+      "carbs": 200,
+      "cardio": "25 min incline walk",
+      "workout": [
+        [
+          "Bench Press",
+          "4",
+          "6-8",
+          "90 sec"
+        ],
+        [
+          "Incline Dumbbell Press",
+          "3",
+          "8-10",
+          "75 sec"
+        ],
+        [
+          "Machine Chest Press",
+          "3",
+          "10-12",
+          "60 sec"
+        ],
+        [
+          "Seated Shoulder Press",
+          "3",
+          "8-10",
+          "75 sec"
+        ],
+        [
+          "Lateral Raises",
+          "4",
+          "15",
+          "45 sec"
+        ],
+        [
+          "Tricep Pushdown",
+          "3",
+          "12",
+          "45 sec"
+        ]
+      ],
+      "hook": "Can I actually change?",
+      "title": "AI Controls My Fitness Day 11",
+      "angle": "Show weigh-in, waist, workout clips, meals, and end-of-day scorecard."
+    },
+    {
+      "day": 12,
+      "type": "Pull",
+      "week": 2,
+      "calories": 2300,
+      "protein": 220,
+      "fat": 65,
+      "carbs": 200,
+      "cardio": "25 min incline walk",
+      "workout": [
+        [
+          "Pullups",
+          "4",
+          "AMRAP",
+          "90 sec"
+        ],
+        [
+          "Lat Pulldown",
+          "3",
+          "10",
+          "75 sec"
+        ],
+        [
+          "Chest Supported Row",
+          "4",
+          "10",
+          "75 sec"
+        ],
+        [
+          "Cable Row",
+          "3",
+          "12",
+          "60 sec"
+        ],
+        [
+          "Face Pull",
+          "4",
+          "15",
+          "45 sec"
+        ],
+        [
+          "Hammer Curl",
+          "3",
+          "12",
+          "45 sec"
+        ],
+        [
+          "EZ Curl",
+          "3",
+          "12",
+          "45 sec"
+        ]
+      ],
+      "hook": "Back is finally popping.",
+      "title": "AI Controls My Fitness Day 12",
+      "angle": "Show weigh-in, waist, workout clips, meals, and end-of-day scorecard."
+    },
+    {
+      "day": 13,
+      "type": "Legs + Conditioning",
+      "week": 2,
+      "calories": 2300,
+      "protein": 220,
+      "fat": 65,
+      "carbs": 200,
+      "cardio": "25 min incline walk",
+      "workout": [
+        [
+          "Front Squat",
+          "4",
+          "8",
+          "90 sec"
+        ],
+        [
+          "Leg Press",
+          "4",
+          "12",
+          "90 sec"
+        ],
+        [
+          "Leg Curl",
+          "4",
+          "12",
+          "60 sec"
+        ],
+        [
+          "Bike Sprints",
+          "10",
+          "20 sec hard / 100 sec easy",
+          "As listed"
+        ]
+      ],
+      "hook": "Another brutal leg day.",
+      "title": "AI Controls My Fitness Day 13",
+      "angle": "Show weigh-in, waist, workout clips, meals, and end-of-day scorecard."
+    },
+    {
+      "day": 14,
+      "type": "Recovery",
+      "week": 2,
+      "calories": 2100,
+      "protein": 220,
+      "fat": 65,
+      "carbs": 150,
+      "cardio": "Optional easy walk only",
+      "workout": [
+        [
+          "Steps",
+          "1",
+          "10,000+",
+          "All day"
+        ],
+        [
+          "Mobility",
+          "1",
+          "20 min",
+          "Easy"
+        ],
+        [
+          "Stretching",
+          "1",
+          "10 min",
+          "Easy"
+        ]
+      ],
+      "hook": "Two weeks. Here's the truth.",
+      "title": "AI Controls My Fitness Day 14",
+      "angle": "Show weigh-in, waist, workout clips, meals, and end-of-day scorecard."
+    },
+    {
+      "day": 15,
+      "type": "Push",
+      "week": 3,
+      "calories": 2300,
+      "protein": 220,
+      "fat": 65,
+      "carbs": 200,
+      "cardio": "30 min incline walk",
+      "workout": [
+        [
+          "Bench Press",
+          "4",
+          "6-8",
+          "90 sec"
+        ],
+        [
+          "Incline Dumbbell Press",
+          "3",
+          "8-10",
+          "75 sec"
+        ],
+        [
+          "Machine Chest Press",
+          "3",
+          "10-12",
+          "60 sec"
+        ],
+        [
+          "Seated Shoulder Press",
+          "3",
+          "8-10",
+          "75 sec"
+        ],
+        [
+          "Lateral Raises",
+          "4",
+          "15",
+          "45 sec"
+        ],
+        [
+          "Tricep Pushdown",
+          "3",
+          "12",
+          "45 sec"
+        ]
+      ],
+      "hook": "Halfway pressure is real.",
+      "title": "AI Controls My Fitness Day 15",
+      "angle": "Show weigh-in, waist, workout clips, meals, and end-of-day scorecard."
+    },
+    {
+      "day": 16,
+      "type": "Pull",
+      "week": 3,
+      "calories": 2300,
+      "protein": 220,
+      "fat": 65,
+      "carbs": 200,
+      "cardio": "30 min incline walk",
+      "workout": [
+        [
+          "Pullups",
+          "4",
+          "AMRAP",
+          "90 sec"
+        ],
+        [
+          "Lat Pulldown",
+          "3",
+          "10",
+          "75 sec"
+        ],
+        [
+          "Chest Supported Row",
+          "4",
+          "10",
+          "75 sec"
+        ],
+        [
+          "Cable Row",
+          "3",
+          "12",
+          "60 sec"
+        ],
+        [
+          "Face Pull",
+          "4",
+          "15",
+          "45 sec"
+        ],
+        [
+          "Hammer Curl",
+          "3",
+          "12",
+          "45 sec"
+        ],
+        [
+          "EZ Curl",
+          "3",
+          "12",
+          "45 sec"
+        ]
+      ],
+      "hook": "AI increased the difficulty.",
+      "title": "AI Controls My Fitness Day 16",
+      "angle": "Show weigh-in, waist, workout clips, meals, and end-of-day scorecard."
+    },
+    {
+      "day": 17,
+      "type": "Legs",
+      "week": 3,
+      "calories": 2300,
+      "protein": 220,
+      "fat": 65,
+      "carbs": 200,
+      "cardio": "30 min incline walk",
+      "workout": [
+        [
+          "Back Squat",
+          "4",
+          "6",
+          "120 sec"
+        ],
+        [
+          "Romanian Deadlift",
+          "4",
+          "8",
+          "90 sec"
+        ],
+        [
+          "Leg Press",
+          "3",
+          "12",
+          "90 sec"
+        ],
+        [
+          "Walking Lunges",
+          "3",
+          "20 steps",
+          "75 sec"
+        ],
+        [
+          "Leg Curl",
+          "3",
+          "15",
+          "60 sec"
+        ],
+        [
+          "Calf Raises",
+          "4",
+          "15",
+          "45 sec"
+        ]
+      ],
+      "hook": "The mirror is changing.",
+      "title": "AI Controls My Fitness Day 17",
+      "angle": "Show weigh-in, waist, workout clips, meals, and end-of-day scorecard."
+    },
+    {
+      "day": 18,
+      "type": "Push",
+      "week": 3,
+      "calories": 2300,
+      "protein": 220,
+      "fat": 65,
+      "carbs": 200,
+      "cardio": "30 min incline walk",
+      "workout": [
+        [
+          "Bench Press",
+          "4",
+          "6-8",
+          "90 sec"
+        ],
+        [
+          "Incline Dumbbell Press",
+          "3",
+          "8-10",
+          "75 sec"
+        ],
+        [
+          "Machine Chest Press",
+          "3",
+          "10-12",
+          "60 sec"
+        ],
+        [
+          "Seated Shoulder Press",
+          "3",
+          "8-10",
+          "75 sec"
+        ],
+        [
+          "Lateral Raises",
+          "4",
+          "15",
+          "45 sec"
+        ],
+        [
+          "Tricep Pushdown",
+          "3",
+          "12",
+          "45 sec"
+        ]
+      ],
+      "hook": "This is getting serious.",
+      "title": "AI Controls My Fitness Day 18",
+      "angle": "Show weigh-in, waist, workout clips, meals, and end-of-day scorecard."
+    },
+    {
+      "day": 19,
+      "type": "Pull",
+      "week": 3,
+      "calories": 2300,
+      "protein": 220,
+      "fat": 65,
+      "carbs": 200,
+      "cardio": "30 min incline walk",
+      "workout": [
+        [
+          "Pullups",
+          "4",
+          "AMRAP",
+          "90 sec"
+        ],
+        [
+          "Lat Pulldown",
+          "3",
+          "10",
+          "75 sec"
+        ],
+        [
+          "Chest Supported Row",
+          "4",
+          "10",
+          "75 sec"
+        ],
+        [
+          "Cable Row",
+          "3",
+          "12",
+          "60 sec"
+        ],
+        [
+          "Face Pull",
+          "4",
+          "15",
+          "45 sec"
+        ],
+        [
+          "Hammer Curl",
+          "3",
+          "12",
+          "45 sec"
+        ],
+        [
+          "EZ Curl",
+          "3",
+          "12",
+          "45 sec"
+        ]
+      ],
+      "hook": "Energy is way better.",
+      "title": "AI Controls My Fitness Day 19",
+      "angle": "Show weigh-in, waist, workout clips, meals, and end-of-day scorecard."
+    },
+    {
+      "day": 20,
+      "type": "Legs + Conditioning",
+      "week": 3,
+      "calories": 2300,
+      "protein": 220,
+      "fat": 65,
+      "carbs": 200,
+      "cardio": "30 min incline walk",
+      "workout": [
+        [
+          "Front Squat",
+          "4",
+          "8",
+          "90 sec"
+        ],
+        [
+          "Leg Press",
+          "4",
+          "12",
+          "90 sec"
+        ],
+        [
+          "Leg Curl",
+          "4",
+          "12",
+          "60 sec"
+        ],
+        [
+          "Bike Sprints",
+          "10",
+          "20 sec hard / 100 sec easy",
+          "As listed"
+        ]
+      ],
+      "hook": "My hardest workout yet.",
+      "title": "AI Controls My Fitness Day 20",
+      "angle": "Show weigh-in, waist, workout clips, meals, and end-of-day scorecard."
+    },
+    {
+      "day": 21,
+      "type": "Recovery",
+      "week": 3,
+      "calories": 2100,
+      "protein": 220,
+      "fat": 65,
+      "carbs": 150,
+      "cardio": "Optional easy walk only",
+      "workout": [
+        [
+          "Steps",
+          "1",
+          "10,000+",
+          "All day"
+        ],
+        [
+          "Mobility",
+          "1",
+          "20 min",
+          "Easy"
+        ],
+        [
+          "Stretching",
+          "1",
+          "10 min",
+          "Easy"
+        ]
+      ],
+      "hook": "The mirror shocked me.",
+      "title": "AI Controls My Fitness Day 21",
+      "angle": "Show weigh-in, waist, workout clips, meals, and end-of-day scorecard."
+    },
+    {
+      "day": 22,
+      "type": "Push",
+      "week": 4,
+      "calories": 2300,
+      "protein": 220,
+      "fat": 65,
+      "carbs": 200,
+      "cardio": "35 min incline walk",
+      "workout": [
+        [
+          "Bench Press",
+          "4",
+          "6-8",
+          "90 sec"
+        ],
+        [
+          "Incline Dumbbell Press",
+          "3",
+          "8-10",
+          "75 sec"
+        ],
+        [
+          "Machine Chest Press",
+          "3",
+          "10-12",
+          "60 sec"
+        ],
+        [
+          "Seated Shoulder Press",
+          "3",
+          "8-10",
+          "75 sec"
+        ],
+        [
+          "Lateral Raises",
+          "4",
+          "15",
+          "45 sec"
+        ],
+        [
+          "Tricep Pushdown",
+          "3",
+          "12",
+          "45 sec"
+        ]
+      ],
+      "hook": "Final week begins.",
+      "title": "AI Controls My Fitness Day 22",
+      "angle": "Show weigh-in, waist, workout clips, meals, and end-of-day scorecard."
+    },
+    {
+      "day": 23,
+      "type": "Pull",
+      "week": 4,
+      "calories": 2300,
+      "protein": 220,
+      "fat": 65,
+      "carbs": 200,
+      "cardio": "35 min incline walk",
+      "workout": [
+        [
+          "Pullups",
+          "4",
+          "AMRAP",
+          "90 sec"
+        ],
+        [
+          "Lat Pulldown",
+          "3",
+          "10",
+          "75 sec"
+        ],
+        [
+          "Chest Supported Row",
+          "4",
+          "10",
+          "75 sec"
+        ],
+        [
+          "Cable Row",
+          "3",
+          "12",
+          "60 sec"
+        ],
+        [
+          "Face Pull",
+          "4",
+          "15",
+          "45 sec"
+        ],
+        [
+          "Hammer Curl",
+          "3",
+          "12",
+          "45 sec"
+        ],
+        [
+          "EZ Curl",
+          "3",
+          "12",
+          "45 sec"
+        ]
+      ],
+      "hook": "Now people notice.",
+      "title": "AI Controls My Fitness Day 23",
+      "angle": "Show weigh-in, waist, workout clips, meals, and end-of-day scorecard."
+    },
+    {
+      "day": 24,
+      "type": "Legs",
+      "week": 4,
+      "calories": 2300,
+      "protein": 220,
+      "fat": 65,
+      "carbs": 200,
+      "cardio": "35 min incline walk",
+      "workout": [
+        [
+          "Back Squat",
+          "4",
+          "6",
+          "120 sec"
+        ],
+        [
+          "Romanian Deadlift",
+          "4",
+          "8",
+          "90 sec"
+        ],
+        [
+          "Leg Press",
+          "3",
+          "12",
+          "90 sec"
+        ],
+        [
+          "Walking Lunges",
+          "3",
+          "20 steps",
+          "75 sec"
+        ],
+        [
+          "Leg Curl",
+          "3",
+          "15",
+          "60 sec"
+        ],
+        [
+          "Calf Raises",
+          "4",
+          "15",
+          "45 sec"
+        ]
+      ],
+      "hook": "AI vs discipline.",
+      "title": "AI Controls My Fitness Day 24",
+      "angle": "Show weigh-in, waist, workout clips, meals, and end-of-day scorecard."
+    },
+    {
+      "day": 25,
+      "type": "Push",
+      "week": 4,
+      "calories": 2300,
+      "protein": 220,
+      "fat": 65,
+      "carbs": 200,
+      "cardio": "35 min incline walk",
+      "workout": [
+        [
+          "Bench Press",
+          "4",
+          "6-8",
+          "90 sec"
+        ],
+        [
+          "Incline Dumbbell Press",
+          "3",
+          "8-10",
+          "75 sec"
+        ],
+        [
+          "Machine Chest Press",
+          "3",
+          "10-12",
+          "60 sec"
+        ],
+        [
+          "Seated Shoulder Press",
+          "3",
+          "8-10",
+          "75 sec"
+        ],
+        [
+          "Lateral Raises",
+          "4",
+          "15",
+          "45 sec"
+        ],
+        [
+          "Tricep Pushdown",
+          "3",
+          "12",
+          "45 sec"
+        ]
+      ],
+      "hook": "Can I finish strong?",
+      "title": "AI Controls My Fitness Day 25",
+      "angle": "Show weigh-in, waist, workout clips, meals, and end-of-day scorecard."
+    },
+    {
+      "day": 26,
+      "type": "Pull",
+      "week": 4,
+      "calories": 2300,
+      "protein": 220,
+      "fat": 65,
+      "carbs": 200,
+      "cardio": "35 min incline walk",
+      "workout": [
+        [
+          "Pullups",
+          "4",
+          "AMRAP",
+          "90 sec"
+        ],
+        [
+          "Lat Pulldown",
+          "3",
+          "10",
+          "75 sec"
+        ],
+        [
+          "Chest Supported Row",
+          "4",
+          "10",
+          "75 sec"
+        ],
+        [
+          "Cable Row",
+          "3",
+          "12",
+          "60 sec"
+        ],
+        [
+          "Face Pull",
+          "4",
+          "15",
+          "45 sec"
+        ],
+        [
+          "Hammer Curl",
+          "3",
+          "12",
+          "45 sec"
+        ],
+        [
+          "EZ Curl",
+          "3",
+          "12",
+          "45 sec"
+        ]
+      ],
+      "hook": "No excuses left.",
+      "title": "AI Controls My Fitness Day 26",
+      "angle": "Show weigh-in, waist, workout clips, meals, and end-of-day scorecard."
+    },
+    {
+      "day": 27,
+      "type": "Legs + Conditioning",
+      "week": 4,
+      "calories": 2300,
+      "protein": 220,
+      "fat": 65,
+      "carbs": 200,
+      "cardio": "35 min incline walk",
+      "workout": [
+        [
+          "Front Squat",
+          "4",
+          "8",
+          "90 sec"
+        ],
+        [
+          "Leg Press",
+          "4",
+          "12",
+          "90 sec"
+        ],
+        [
+          "Leg Curl",
+          "4",
+          "12",
+          "60 sec"
+        ],
+        [
+          "Bike Sprints",
+          "10",
+          "20 sec hard / 100 sec easy",
+          "As listed"
+        ]
+      ],
+      "hook": "Peak week is brutal.",
+      "title": "AI Controls My Fitness Day 27",
+      "angle": "Show weigh-in, waist, workout clips, meals, and end-of-day scorecard."
+    },
+    {
+      "day": 28,
+      "type": "Recovery",
+      "week": 4,
+      "calories": 2100,
+      "protein": 220,
+      "fat": 65,
+      "carbs": 150,
+      "cardio": "Optional easy walk only",
+      "workout": [
+        [
+          "Steps",
+          "1",
+          "10,000+",
+          "All day"
+        ],
+        [
+          "Mobility",
+          "1",
+          "20 min",
+          "Easy"
+        ],
+        [
+          "Stretching",
+          "1",
+          "10 min",
+          "Easy"
+        ]
+      ],
+      "hook": "Almost at day 30.",
+      "title": "AI Controls My Fitness Day 28",
+      "angle": "Show weigh-in, waist, workout clips, meals, and end-of-day scorecard."
+    },
+    {
+      "day": 29,
+      "type": "Push",
+      "week": 5,
+      "calories": 2300,
+      "protein": 220,
+      "fat": 65,
+      "carbs": 200,
+      "cardio": "35 min incline walk",
+      "workout": [
+        [
+          "Bench Press",
+          "4",
+          "6-8",
+          "90 sec"
+        ],
+        [
+          "Incline Dumbbell Press",
+          "3",
+          "8-10",
+          "75 sec"
+        ],
+        [
+          "Machine Chest Press",
+          "3",
+          "10-12",
+          "60 sec"
+        ],
+        [
+          "Seated Shoulder Press",
+          "3",
+          "8-10",
+          "75 sec"
+        ],
+        [
+          "Lateral Raises",
+          "4",
+          "15",
+          "45 sec"
+        ],
+        [
+          "Tricep Pushdown",
+          "3",
+          "12",
+          "45 sec"
+        ]
+      ],
+      "hook": "One last push.",
+      "title": "AI Controls My Fitness Day 29",
+      "angle": "Show weigh-in, waist, workout clips, meals, and end-of-day scorecard."
+    },
+    {
+      "day": 30,
+      "type": "Final Assessment + Pump",
+      "week": 5,
+      "calories": 2300,
+      "protein": 220,
+      "fat": 65,
+      "carbs": 200,
+      "cardio": "30 min incline walk",
+      "workout": [
+        [
+          "Incline Press",
+          "3",
+          "15",
+          "60 sec"
+        ],
+        [
+          "Cable Fly",
+          "3",
+          "20",
+          "45 sec"
+        ],
+        [
+          "Lat Pulldown",
+          "3",
+          "15",
+          "60 sec"
+        ],
+        [
+          "Row",
+          "3",
+          "15",
+          "60 sec"
+        ],
+        [
+          "Lateral Raise",
+          "5",
+          "20",
+          "45 sec"
+        ],
+        [
+          "Curl",
+          "3",
+          "15",
+          "45 sec"
+        ],
+        [
+          "Pushdown",
+          "3",
+          "15",
+          "45 sec"
+        ]
+      ],
+      "hook": "Final results reveal.",
+      "title": "AI Controls My Fitness Day 30",
+      "angle": "Show weigh-in, waist, workout clips, meals, and end-of-day scorecard."
+    }
+  ]
+}

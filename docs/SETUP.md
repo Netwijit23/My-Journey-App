@@ -65,3 +65,4 @@ Open `http://localhost:3000`.
 - Cache food search results in `food_items` with source metadata.
 - Treat imported workouts as drafts until the user saves them.
 - Treat recovery as an estimated personal readiness signal, not medical guidance.
+- Challenge logs are currently local-first. Browser storage can be cleared by the user, so export JSON/CSV for backups until Supabase CRUD is wired in.

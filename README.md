@@ -16,6 +16,7 @@ My Journey is a personal fitness, nutrition, health, and performance operating s
 - Workout plans, exercise database preview, and AI workout text importer
 - Nutrition tracker with food estimate flow, confidence labels, and verified-source structure
 - Garmin-ready recovery dashboard with manual entry, transparent scoring weights, and trend charts
+- Full 30-day “I Let AI Control My Fitness For 30 Days” challenge with daily workouts, nutrition targets, scorecards, adaptations, checkpoints, and JSON/CSV export
 - Supabase auth login page and callback route
 - API routes for workout import, food search, optional AI food estimates, and recovery scoring
 - Complete Supabase SQL schema with RLS policies
@@ -46,3 +47,5 @@ GARMIN_CLIENT_SECRET=
 ## Database
 
 Run `supabase/schema.sql` in the Supabase SQL editor. See `docs/SETUP.md` for Supabase and Vercel steps.
+
+Challenge logs are local-first today and saved in the browser. The schema includes challenge tables for moving logs into Supabase later.

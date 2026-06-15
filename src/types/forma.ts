@@ -85,3 +85,86 @@ export type RecoveryScoreResult = {
   trainingLoadImpact: string;
   disclaimer: string;
 };
+
+export type ChallengeWorkoutRow = [string, string, string, string];
+
+export type ChallengeDay = {
+  day: number;
+  type: string;
+  week: number;
+  calories: number;
+  protein: number;
+  fat: number;
+  carbs: number;
+  cardio: string;
+  workout: ChallengeWorkoutRow[];
+  hook: string;
+  title: string;
+  angle: string;
+};
+
+export type ChallengeCheckpoint = {
+  record: string[];
+  expected: string;
+  adjustment: string;
+};
+
+export type ChallengeProgram = {
+  program_name: string;
+  app_name: string;
+  version: string;
+  nutrition: {
+    profile: Record<string, string | number>;
+    targets: {
+      training_day_calories: number;
+      rest_day_calories: number;
+      protein_g: number;
+      fat_g: number;
+      training_day_carbs_g: number;
+      rest_day_carbs_g: number;
+      water_liters: number;
+      steps: number;
+      sleep_hours: number;
+    };
+    meals_thailand: Array<{ name: string; foods: string[] }>;
+    supplements_optional: string[];
+  };
+  rules: string[];
+  tracking_schema: {
+    daily_fields: Array<Record<string, unknown>>;
+    score_formula: Record<string, number>;
+  };
+  checkpoints: Record<string, ChallengeCheckpoint>;
+  adaptation_protocol: {
+    missed_workout: string[];
+    travel_hotel_gym: { instructions: string; workout: string[] };
+    no_gym: { instructions: string; workout: string[] };
+    sick: string[];
+  };
+  days: ChallengeDay[];
+};
+
+export type ChallengeDailyLog = {
+  day: number;
+  weightKg: string;
+  waistCm: string;
+  sleepHours: string;
+  energyLevel: string;
+  moodLevel: string;
+  workoutCompleted: boolean;
+  stepCount: string;
+  calories: string;
+  proteinG: string;
+  waterLiters: string;
+  notes: string;
+  adaptationMode: "none" | "missed_workout" | "travel_hotel_gym" | "no_gym" | "sick";
+  updatedAt?: string;
+};
+
+export type ChallengeCheckpointLog = {
+  day: number;
+  measurements: string;
+  progress: string;
+  adjustment: string;
+  updatedAt?: string;
+};
