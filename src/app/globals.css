@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: light;
+  --background: #f7f6f2;
+  --foreground: #111111;
+  --card: rgba(255, 255, 255, 0.84);
+  --card-strong: #ffffff;
+  --muted: #6f6f67;
+  --hairline: rgba(17, 17, 17, 0.1);
+  --gold: #d5b56e;
+}
+
+.dark {
+  color-scheme: dark;
+  --background: #0c0c0b;
+  --foreground: #f7f4ec;
+  --card: rgba(26, 26, 24, 0.84);
+  --card-strong: #171716;
+  --muted: #a3a097;
+  --hairline: rgba(247, 244, 236, 0.12);
+  --gold: #d5b56e;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: Arial, Helvetica, sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(213, 181, 110, 0.12), transparent 32rem),
+    linear-gradient(180deg, var(--background) 0%, var(--background) 100%);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+::selection {
+  background: var(--gold);
+  color: #111111;
+}
+
+.glass {
+  background: var(--card);
+  border: 1px solid var(--hairline);
+  box-shadow: 0 24px 80px rgba(17, 17, 17, 0.08);
+  backdrop-filter: blur(24px);
+}
+
+.panel {
+  background: var(--card-strong);
+  border: 1px solid var(--hairline);
+}

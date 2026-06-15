@@ -1,0 +1,14 @@
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
+export function percent(value: number, target: number) {
+  return Math.min(100, Math.round((value / target) * 100));
+}
+
+export function formatNumber(value: number) {
+  return new Intl.NumberFormat("en", { maximumFractionDigits: 1 }).format(value);
+}

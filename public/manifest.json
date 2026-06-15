@@ -1,0 +1,16 @@
+{
+  "name": "My Journey",
+  "short_name": "Journey",
+  "description": "Personal fitness, nutrition, health, and performance operating system.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0c0c0b",
+  "theme_color": "#111111",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
